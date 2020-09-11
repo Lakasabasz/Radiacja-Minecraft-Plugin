@@ -17,7 +17,6 @@ import pl.lakasabasz.mc.radiacja.Main;
 import pl.lakasabasz.mc.radiacja.tools.ArmorTool;
 import pl.lakasabasz.mc.radiacja.tools.BossBarType;
 import pl.lakasabasz.mc.radiacja.tools.BossBarsManager;
-import pl.lakasabasz.mc.radiacja.tools.Logger;
 
 public class RadiationAreasEffects implements Runnable {
 	
@@ -53,21 +52,26 @@ public class RadiationAreasEffects implements Runnable {
 			if(ArmorTool.test(p.getInventory().getHelmet())) {
 				impactLvl--;
 				ItemMeta im = p.getInventory().getHelmet().getItemMeta();
-				Logger.sendDebug("dim.getDamage() " + ((Damageable) im).getDamage());
 				((Damageable) im).setDamage(((Damageable) im).getDamage()+1);
 				p.getInventory().getHelmet().setItemMeta(im);
 			}
 			if(ArmorTool.test(p.getInventory().getChestplate())) {
 				impactLvl--;
-				((Damageable) p.getInventory().getChestplate().getItemMeta()).setDamage(((Damageable) p.getInventory().getChestplate().getItemMeta()).getDamage()-1);
+				ItemMeta im = p.getInventory().getChestplate().getItemMeta();
+				((Damageable) im).setDamage(((Damageable) im).getDamage()+1);
+				p.getInventory().getChestplate().setItemMeta(im);
 			}
 			if(ArmorTool.test(p.getInventory().getLeggings())) {
 				impactLvl--;
-				((Damageable) p.getInventory().getLeggings().getItemMeta()).setDamage(((Damageable) p.getInventory().getLeggings().getItemMeta()).getDamage()-1);
+				ItemMeta im = p.getInventory().getLeggings().getItemMeta();
+				((Damageable) im).setDamage(((Damageable) im).getDamage()+1);
+				p.getInventory().getLeggings().setItemMeta(im);
 			}
 			if(ArmorTool.test(p.getInventory().getBoots())) {
-				((Damageable) p.getInventory().getBoots().getItemMeta()).setDamage(((Damageable) p.getInventory().getBoots().getItemMeta()).getDamage()-1);
 				impactLvl--;
+				ItemMeta im = p.getInventory().getBoots().getItemMeta();
+				((Damageable) im).setDamage(((Damageable) im).getDamage()+1);
+				p.getInventory().getBoots().setItemMeta(im);
 			}
 			if(impactLvl == 0) continue;
 			
