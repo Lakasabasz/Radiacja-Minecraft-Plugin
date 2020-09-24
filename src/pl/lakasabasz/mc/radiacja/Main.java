@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarFlag;
 import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -26,16 +27,22 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 import pl.lakasabasz.mc.radiacja.cmds.AddRegionCommand;
 import pl.lakasabasz.mc.radiacja.cmds.CatchableCommand;
-import pl.lakasabasz.mc.radiacja.cmds.GiveHelmetCommand;
 import pl.lakasabasz.mc.radiacja.cmds.HelpCommand;
 import pl.lakasabasz.mc.radiacja.cmds.ListRegionCommand;
 import pl.lakasabasz.mc.radiacja.cmds.ReloadConfigCommand;
 import pl.lakasabasz.mc.radiacja.cmds.RemoveRegionCommand;
 import pl.lakasabasz.mc.radiacja.cmds.SaveConfigCommand;
+import pl.lakasabasz.mc.radiacja.events.DisabledCraftings;
+import pl.lakasabasz.mc.radiacja.events.DropFormGoldOre;
+import pl.lakasabasz.mc.radiacja.events.PotionsEffects;
+import pl.lakasabasz.mc.radiacja.schedulers.IodyneEffect;
 import pl.lakasabasz.mc.radiacja.schedulers.RadiationAreasEffects;
+import pl.lakasabasz.mc.radiacja.tools.ArmorTool;
 import pl.lakasabasz.mc.radiacja.tools.BossBarType;
 import pl.lakasabasz.mc.radiacja.tools.BossBarsManager;
 import pl.lakasabasz.mc.radiacja.tools.Commands;
+import pl.lakasabasz.mc.radiacja.tools.IodyneTool;
+import pl.lakasabasz.mc.radiacja.tools.LeadTool;
 import pl.lakasabasz.mc.radiacja.tools.Logger;
 import pl.lakasabasz.mc.radiacja.tools.Messages;
 import pl.lakasabasz.mc.radiacja.tools.MessagesType;
@@ -43,7 +50,7 @@ import pl.lakasabasz.mc.radiacja.tools.Permissions;
 import pl.lakasabasz.mc.radiacja.tools.PermissionsType;
 
 
-@Plugin(name = "Radiacja", version = "0.0.4.2")
+@Plugin(name = "Radiacja", version = "1.0.0.0")
 @Description(value = "Plugin tworzący strefy radiacji")
 @Author(value = "Łukasz Łakasabasz Mastalerz")
 @Dependency(value = "WorldGuard")
@@ -57,6 +64,7 @@ public class Main extends JavaPlugin {
 	private List<ProtectedRegion> areas;
 	private boolean everyAreaIsSafe;
 	private BukkitTask radiationAreasEffectScheduler;
+	private BukkitTask playersIodyneEffectScheduler;
 	
 	@Override
 	public void onEnable() {
@@ -91,17 +99,26 @@ public class Main extends JavaPlugin {
 			Logger.sendWarning(Messages.getMessage(MessagesType.WARRNING_EMPTY_REGIONS));
 		}
 		
-		BossBarsManager.setBossBar(BossBarType.RADIATION_AREA, Bukkit.createBossBar("Strefa skażenia radioaktywnego", BarColor.RED,  BarStyle.SOLID, BarFlag.CREATE_FOG, BarFlag.DARKEN_SKY));
+		BossBarsManager.addBossBar(BossBarType.RADIATION_AREA, Bukkit.createBossBar("Strefa skażenia radioaktywnego", BarColor.RED,  BarStyle.SOLID, BarFlag.CREATE_FOG, BarFlag.DARKEN_SKY));
+		BossBar bb = Bukkit.createBossBar("Działanie jodyny", BarColor.BLUE, BarStyle.SEGMENTED_20, BarFlag.DARKEN_SKY);
+		bb.removeFlag(BarFlag.DARKEN_SKY);
+		BossBarsManager.addBossBar(BossBarType.IODYNE_EFFECT, bb);
 		
 		radiationAreasEffectScheduler = Bukkit.getScheduler().runTaskTimer(this, new RadiationAreasEffects(), 2*20, 20);
+		playersIodyneEffectScheduler = Bukkit.getScheduler().runTaskTimer(this, new IodyneEffect(), 4*20, 1);
 		
+		ArmorTool.registerCraftings();
+		LeadTool.registerRecipes();
+		IodyneTool.registerRecipes();
 		Commands.registerCommand(new HelpCommand());
 		Commands.registerCommand(new AddRegionCommand());
 		Commands.registerCommand(new SaveConfigCommand());
 		Commands.registerCommand(new ReloadConfigCommand());
 		Commands.registerCommand(new ListRegionCommand());
 		Commands.registerCommand(new RemoveRegionCommand());
-		Commands.registerCommand(new GiveHelmetCommand());
+		Bukkit.getPluginManager().registerEvents(new DisabledCraftings(), this);
+		Bukkit.getPluginManager().registerEvents(new DropFormGoldOre(), this);
+		Bukkit.getPluginManager().registerEvents(new PotionsEffects(), this);
 		Messages.postInit();
 		Logger.sendInfo("Started");
 	}
@@ -111,15 +128,18 @@ public class Main extends JavaPlugin {
 		Logger.sendInfo("Stopping");
 		
 		radiationAreasEffectScheduler.cancel();
+		playersIodyneEffectScheduler.cancel();
 		
 		List<String> areasID = new ArrayList<String>();
 		for(ProtectedRegion pr : areas) {
 			areasID.add(pr.getId());
-			Logger.sendDebug(pr.getId());
 		}
+		
+		ArmorTool.unregisterCrafting();
+		LeadTool.unregisterRecipes();
+		
 		this.getConfig().set("exceptAreas", areasID);
 		this.getConfig().set("everyAreaIsSafe", everyAreaIsSafe);
-		Logger.sendDebug(this.getConfig().getStringList("exceptAreas").size() + "");
 		this.saveConfig();
 		Logger.sendInfo("Stoped");
 	}
@@ -180,6 +200,10 @@ public class Main extends JavaPlugin {
 				return true;
 			}
 		}
+		return false;
+	}
+
+	public static boolean getAdvencedBrwingStand() {
 		return false;
 	}
 }

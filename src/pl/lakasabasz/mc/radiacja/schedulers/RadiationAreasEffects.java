@@ -50,28 +50,44 @@ public class RadiationAreasEffects implements Runnable {
 			
 			int impactLvl = 4;
 			if(ArmorTool.test(p.getInventory().getHelmet())) {
-				impactLvl--;
 				ItemMeta im = p.getInventory().getHelmet().getItemMeta();
-				((Damageable) im).setDamage(((Damageable) im).getDamage()+1);
-				p.getInventory().getHelmet().setItemMeta(im);
+				if(((Damageable) im).getDamage() > p.getInventory().getHelmet().getType().getMaxDurability()) {
+					p.getInventory().setHelmet(null);
+				} else {
+					((Damageable) im).setDamage(((Damageable) im).getDamage()+1);
+					p.getInventory().getHelmet().setItemMeta(im);
+					impactLvl--;
+				}
 			}
 			if(ArmorTool.test(p.getInventory().getChestplate())) {
-				impactLvl--;
 				ItemMeta im = p.getInventory().getChestplate().getItemMeta();
-				((Damageable) im).setDamage(((Damageable) im).getDamage()+1);
-				p.getInventory().getChestplate().setItemMeta(im);
+				if(((Damageable) im).getDamage() > p.getInventory().getChestplate().getType().getMaxDurability()) {
+					p.getInventory().setChestplate(null);
+				} else {
+					((Damageable) im).setDamage(((Damageable) im).getDamage()+1);
+					p.getInventory().getChestplate().setItemMeta(im);
+					impactLvl--;
+				}
 			}
 			if(ArmorTool.test(p.getInventory().getLeggings())) {
-				impactLvl--;
 				ItemMeta im = p.getInventory().getLeggings().getItemMeta();
-				((Damageable) im).setDamage(((Damageable) im).getDamage()+1);
-				p.getInventory().getLeggings().setItemMeta(im);
+				if(((Damageable) im).getDamage() > p.getInventory().getLeggings().getType().getMaxDurability()) {
+					p.getInventory().setLeggings(null);
+				} else {
+					((Damageable) im).setDamage(((Damageable) im).getDamage()+1);
+					p.getInventory().getLeggings().setItemMeta(im);
+					impactLvl--;
+				}
 			}
 			if(ArmorTool.test(p.getInventory().getBoots())) {
-				impactLvl--;
 				ItemMeta im = p.getInventory().getBoots().getItemMeta();
-				((Damageable) im).setDamage(((Damageable) im).getDamage()+1);
-				p.getInventory().getBoots().setItemMeta(im);
+				if(((Damageable) im).getDamage() > p.getInventory().getBoots().getType().getMaxDurability()) {
+					p.getInventory().setBoots(null);
+				} else {
+					((Damageable) im).setDamage(((Damageable) im).getDamage()+1);
+					p.getInventory().getBoots().setItemMeta(im);
+					impactLvl--;
+				}
 			}
 			if(impactLvl == 0) continue;
 			

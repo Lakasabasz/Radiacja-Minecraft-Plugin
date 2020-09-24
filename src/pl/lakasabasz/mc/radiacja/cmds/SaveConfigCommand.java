@@ -20,7 +20,6 @@ public class SaveConfigCommand implements CatchableCommand {
 		List<String> areasID = new ArrayList<String>();
 		for(ProtectedRegion pr : plugin.getAreas()) {
 			areasID.add(pr.getId());
-			Logger.sendDebug(pr.getId());
 		}
 		plugin.getConfig().set("exceptAreas", areasID);
 		plugin.getConfig().set("everyAreaIsSafe", plugin.getEveryAreaIsSafe());
